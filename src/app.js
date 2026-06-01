@@ -53,12 +53,21 @@
     if (!tg) return;
     tg.ready();
     tg.expand();
+    applyTelegramTheme();
+    tg.onEvent && tg.onEvent("themeChanged", applyTelegramTheme);
     if (tg.MainButton) {
       tg.MainButton.setText("\u63d0\u4ea4\u672c\u5173");
       tg.MainButton.onClick(submitLevel);
       tg.MainButton.show();
     }
     document.body.classList.add("in-telegram");
+  }
+
+  function applyTelegramTheme() {
+    if (!tg) return;
+    document.body.classList.toggle("tg-dark", tg.colorScheme === "dark");
+    if (tg.setHeaderColor) tg.setHeaderColor(tg.colorScheme === "dark" ? "#17212b" : "#eef4ef");
+    if (tg.setBackgroundColor) tg.setBackgroundColor(tg.colorScheme === "dark" ? "#17212b" : "#eef4ef");
   }
 
   function keyOf(ids) {

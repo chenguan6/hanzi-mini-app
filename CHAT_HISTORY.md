@@ -4,6 +4,18 @@ This file stores one concise entry for each completed Codex work session in this
 
 ## Entries
 
+### 2026-06-02 00:10:04
+
+**User**
+
+好
+
+**Codex**
+
+已修复 Telegram 深色主题适配：加入主题监听、根据 WebApp 颜色方案切换 CSS 变量，并把页面容器、卡片、按钮和文字改成可读的浅/深色样式。
+
+Files: `CHAT_HISTORY.md`
+
 ### 2026-06-01 23:13:58
 
 **User**
