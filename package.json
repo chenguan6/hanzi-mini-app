@@ -1,0 +1,16 @@
+{
+  "name": "mini_app",
+  "version": "1.0.0",
+  "description": "一个零依赖的汉字拆笔画小游戏原型，可直接作为 Telegram Mini App 的前端页面使用。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "wrangler": "^4.95.0"
+  }
+}
