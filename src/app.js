@@ -1,9 +1,16 @@
 (function () {
-  const levels = window.HANZI_LEVELS;
+  const levels = window.HANZI_LEVELS || [];
+  const storageKey = "hanzi-mini-app-state-v2";
   const state = {
     levelIndex: 0,
     selected: new Set(),
-    found: new Set()
+    found: new Set(),
+    completedLevels: 0,
+    score: 0,
+    hintsUsed: 0,
+    startedAt: Date.now(),
+    elapsedBefore: 0,
+    finished: false
   };
 
   const text = {
@@ -17,7 +24,11 @@
     missingPrefix: "\u8fd8\u5dee",
     missingSuffix: "\u4e2a\u5b57",
     next: "\u8fdb\u5165\u4e0b\u4e00\u5173",
-    done: "\u5168\u90e8\u901a\u5173\uff01"
+    done: "\u5168\u90e8\u901a\u5173\uff01",
+    resumed: "\u5df2\u6062\u590d\u4e0a\u6b21\u8fdb\u5ea6",
+    copied: "\u6210\u7ee9\u5df2\u53d1\u9001\u5230 Telegram",
+    scoreUnit: "\u5206",
+    empty: "\u6682\u65e0\u5173\u5361"
   };
 
   const $ = (id) => document.getElementById(id);
@@ -26,13 +37,27 @@
   const foundList = $("foundList");
   const toast = $("toast");
   const progressText = $("progressText");
+  const scoreText = $("scoreText");
+  const timerText = $("timerText");
+  const hintText = $("hintText");
+  const resultSheet = $("resultSheet");
+  const finalScoreText = $("finalScoreText");
+  const finalTimeText = $("finalTimeText");
+  const resultSummary = $("resultSummary");
   let toastTimer = null;
+  let timerId = null;
+  let tg = null;
 
   function initTelegram() {
-    const tg = window.Telegram && window.Telegram.WebApp;
+    tg = window.Telegram && window.Telegram.WebApp;
     if (!tg) return;
     tg.ready();
     tg.expand();
+    if (tg.MainButton) {
+      tg.MainButton.setText("\u63d0\u4ea4\u672c\u5173");
+      tg.MainButton.onClick(submitLevel);
+      tg.MainButton.show();
+    }
     document.body.classList.add("in-telegram");
   }
 
@@ -44,6 +69,50 @@
     return levels[state.levelIndex];
   }
 
+  function elapsedSeconds() {
+    if (state.finished) return state.elapsedBefore;
+    return state.elapsedBefore + Math.floor((Date.now() - state.startedAt) / 1000);
+  }
+
+  function formatTime(totalSeconds) {
+    const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+    const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }
+
+  function saveProgress() {
+    const payload = {
+      levelIndex: state.levelIndex,
+      completedLevels: state.completedLevels,
+      score: state.score,
+      hintsUsed: state.hintsUsed,
+      elapsed: elapsedSeconds(),
+      found: Array.from(state.found),
+      finished: state.finished
+    };
+    localStorage.setItem(storageKey, JSON.stringify(payload));
+  }
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return false;
+      const saved = JSON.parse(raw);
+      state.levelIndex = Math.min(Math.max(saved.levelIndex || 0, 0), Math.max(levels.length - 1, 0));
+      state.completedLevels = Math.min(saved.completedLevels || 0, levels.length);
+      state.score = saved.score || 0;
+      state.hintsUsed = saved.hintsUsed || 0;
+      state.elapsedBefore = saved.elapsed || 0;
+      state.startedAt = Date.now();
+      state.finished = Boolean(saved.finished);
+      state.found = new Set(Array.isArray(saved.found) ? saved.found : []);
+      return true;
+    } catch (error) {
+      localStorage.removeItem(storageKey);
+      return false;
+    }
+  }
+
   function showToast(message) {
     window.clearTimeout(toastTimer);
     toast.textContent = message;
@@ -51,23 +120,33 @@
     toastTimer = window.setTimeout(() => toast.classList.remove("show"), 1600);
   }
 
-  function renderLevel() {
+  function renderLevel(options = {}) {
     const level = currentLevel();
-    state.selected.clear();
-    state.found.clear();
+    if (!level) {
+      $("levelTitle").textContent = text.empty;
+      return;
+    }
 
-    $("levelLabel").textContent = `${text.level} ${state.levelIndex + 1}`;
+    state.selected.clear();
+    if (!options.keepFound) state.found.clear();
+
+    $("levelLabel").textContent = `${text.level} ${state.levelIndex + 1}/${levels.length}`;
     $("levelTitle").textContent = level.title;
     $("levelPrompt").textContent = level.prompt;
 
     renderSlots();
     renderFoundList();
     renderStrokes();
-    renderProgress();
+    renderStats();
+    updateTelegramButton();
   }
 
-  function renderProgress() {
-    progressText.textContent = `${state.found.size}/${currentLevel().answers.length}`;
+  function renderStats() {
+    const level = currentLevel();
+    progressText.textContent = `${state.found.size}/${level.answers.length}`;
+    scoreText.textContent = state.score.toString();
+    timerText.textContent = formatTime(elapsedSeconds());
+    hintText.textContent = state.hintsUsed.toString();
   }
 
   function renderSlots() {
@@ -109,7 +188,18 @@
     });
   }
 
+  function updateTelegramButton() {
+    if (!tg) return;
+    if (state.finished) {
+      tg.MainButton.setText("\u5206\u4eab\u6210\u7ee9");
+      return;
+    }
+    const ready = state.found.size === currentLevel().answers.length;
+    tg.MainButton.setText(ready ? "\u8fdb\u5165\u4e0b\u4e00\u5173" : "\u63d0\u4ea4\u672c\u5173");
+  }
+
   function toggleStroke(id) {
+    if (state.finished) return;
     if (state.selected.has(id)) {
       state.selected.delete(id);
     } else {
@@ -131,21 +221,30 @@
     }
 
     state.found.add(match.char);
+    const gainedScore = Math.max(20, 120 - state.hintsUsed * 8);
+    state.score += gainedScore;
     state.selected.clear();
     renderSlots();
     renderFoundList();
     renderStrokes();
-    renderProgress();
-    showToast(`${text.found}\u300c${match.char}\u300d`);
+    renderStats();
+    updateTelegramButton();
+    saveProgress();
+    showToast(`${text.found}\u300c${match.char}\u300d +${gainedScore}`);
   }
 
   function resetSelection() {
+    if (state.finished) {
+      restartGame();
+      return;
+    }
     state.selected.clear();
     renderStrokes();
     showToast(text.reset);
   }
 
   function showHint() {
+    if (state.finished) return;
     const level = currentLevel();
     const next = level.answers.find((answer) => !state.found.has(answer.char));
     if (!next) {
@@ -153,32 +252,113 @@
       return;
     }
 
+    state.hintsUsed += 1;
+    state.score = Math.max(0, state.score - 10);
     state.selected = new Set(next.strokes.slice(0, Math.max(1, next.strokes.length - 1)));
     renderStrokes();
+    renderStats();
+    saveProgress();
     showToast(`${text.hint}\u300c${next.char}\u300d`);
   }
 
   function submitLevel() {
+    if (state.finished) {
+      shareResult();
+      return;
+    }
+
     const level = currentLevel();
     if (state.found.size < level.answers.length) {
       showToast(`${text.missingPrefix} ${level.answers.length - state.found.size} ${text.missingSuffix}`);
       return;
     }
 
+    state.completedLevels = Math.max(state.completedLevels, state.levelIndex + 1);
+    state.score += Math.max(30, 180 - elapsedSeconds() - state.hintsUsed * 12);
+
     if (state.levelIndex < levels.length - 1) {
       state.levelIndex += 1;
+      state.found.clear();
+      state.selected.clear();
       renderLevel();
+      saveProgress();
       showToast(text.next);
       return;
     }
 
-    showToast(text.done);
+    finishGame();
+  }
+
+  function finishGame() {
+    state.finished = true;
+    state.elapsedBefore = elapsedSeconds();
+    window.clearInterval(timerId);
+    renderStats();
+    updateTelegramButton();
+    saveProgress();
+    showResult();
+  }
+
+  function showResult() {
+    finalScoreText.textContent = `${state.score} ${text.scoreUnit}`;
+    finalTimeText.textContent = formatTime(elapsedSeconds());
+    resultSummary.textContent = `\u5171\u5b8c\u6210 ${levels.length} \u5173\uff0c\u4f7f\u7528 ${state.hintsUsed} \u6b21\u63d0\u793a`;
+    resultSheet.classList.add("visible");
+    resultSheet.setAttribute("aria-hidden", "false");
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+  }
+
+  function hideResult() {
+    resultSheet.classList.remove("visible");
+    resultSheet.setAttribute("aria-hidden", "true");
+  }
+
+  function restartGame() {
+    state.levelIndex = 0;
+    state.selected.clear();
+    state.found.clear();
+    state.completedLevels = 0;
+    state.score = 0;
+    state.hintsUsed = 0;
+    state.elapsedBefore = 0;
+    state.startedAt = Date.now();
+    state.finished = false;
+    localStorage.removeItem(storageKey);
+    hideResult();
+    startTimer();
+    renderLevel();
+  }
+
+  function shareResult() {
+    if (!tg) {
+      showResult();
+      return;
+    }
+    tg.sendData(JSON.stringify({
+      type: "game_result",
+      score: state.score,
+      elapsed: elapsedSeconds(),
+      hintsUsed: state.hintsUsed,
+      levels: levels.length
+    }));
+    showToast(text.copied);
+  }
+
+  function startTimer() {
+    window.clearInterval(timerId);
+    timerId = window.setInterval(renderStats, 1000);
   }
 
   $("resetBtn").addEventListener("click", resetSelection);
   $("hintBtn").addEventListener("click", showHint);
   $("submitBtn").addEventListener("click", submitLevel);
+  $("replayBtn").addEventListener("click", restartGame);
+  $("continueBtn").addEventListener("click", hideResult);
 
   initTelegram();
-  renderLevel();
+  const restored = loadProgress();
+  renderLevel({ keepFound: restored });
+  if (state.finished) showResult();
+  if (!state.finished) startTimer();
+  if (restored && !state.finished) showToast(text.resumed);
 })();

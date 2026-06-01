@@ -44,7 +44,7 @@ button {
   margin: 0 auto;
   padding: max(18px, env(safe-area-inset-top)) 18px max(20px, env(safe-area-inset-bottom));
   display: grid;
-  grid-template-rows: auto auto auto minmax(280px, 1fr) auto auto;
+  grid-template-rows: auto auto auto auto minmax(280px, 1fr) auto auto;
   gap: 14px;
   background: rgba(255, 253, 247, 0.72);
   backdrop-filter: blur(10px);
@@ -90,6 +90,37 @@ h1 {
   box-shadow: 0 12px 28px var(--shadow);
   color: var(--blue);
   font-weight: 900;
+}
+
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stats-bar div {
+  min-height: 58px;
+  padding: 9px 10px;
+  border: 1px solid rgba(37, 48, 43, 0.1);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.66);
+  box-shadow: 0 8px 18px rgba(42, 48, 43, 0.07);
+}
+
+.stats-bar span {
+  display: block;
+  color: var(--soft);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.stats-bar strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.1;
 }
 
 .answer-board {
@@ -262,6 +293,91 @@ h1 {
 .toast.show {
   opacity: 1;
   transform: translate(-50%, 0);
+}
+
+.result-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(37, 48, 43, 0.34);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.result-sheet.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.result-card {
+  width: min(100%, 420px);
+  padding: 22px;
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: 0 26px 70px rgba(37, 48, 43, 0.26);
+}
+
+.result-kicker {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(227, 91, 79, 0.12);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.result-card h2 {
+  margin: 12px 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.result-card p {
+  margin: 0;
+  color: var(--soft);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.result-grid div {
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--surface-strong);
+}
+
+.result-grid span {
+  display: block;
+  color: var(--soft);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.result-grid strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.result-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 @media (min-width: 760px) {

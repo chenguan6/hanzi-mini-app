@@ -17,6 +17,21 @@
         <div class="progress-ring" id="progressText">0/5</div>
       </header>
 
+      <section class="stats-bar" aria-label="&#28216;&#25103;&#29366;&#24577;">
+        <div>
+          <span>&#24403;&#21069;&#24471;&#20998;</span>
+          <strong id="scoreText">0</strong>
+        </div>
+        <div>
+          <span>&#29992;&#26102;</span>
+          <strong id="timerText">00:00</strong>
+        </div>
+        <div>
+          <span>&#25552;&#31034;</span>
+          <strong id="hintText">0</strong>
+        </div>
+      </section>
+
       <section class="answer-board" id="answerSlots" aria-label="&#24050;&#25214;&#21040;&#30340;&#27721;&#23383;"></section>
 
       <section class="prompt-panel">
@@ -46,6 +61,28 @@
         </button>
       </nav>
     </main>
+
+    <section class="result-sheet" id="resultSheet" aria-hidden="true">
+      <div class="result-card" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+        <span class="result-kicker" id="resultKicker">&#36890;&#20851;&#32467;&#31639;</span>
+        <h2 id="resultTitle">&#36890;&#20851;&#25104;&#21151;</h2>
+        <p id="resultSummary">&#20320;&#25214;&#21040;&#20102;&#25152;&#26377;&#27721;&#23383;</p>
+        <div class="result-grid">
+          <div>
+            <span>&#24635;&#20998;</span>
+            <strong id="finalScoreText">0</strong>
+          </div>
+          <div>
+            <span>&#29992;&#26102;</span>
+            <strong id="finalTimeText">00:00</strong>
+          </div>
+        </div>
+        <div class="result-actions">
+          <button type="button" class="action-button" id="replayBtn">&#37325;&#26032;&#24320;&#22987;</button>
+          <button type="button" class="action-button primary" id="continueBtn">&#32487;&#32493;&#30475;&#30475;</button>
+        </div>
+      </div>
+    </section>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

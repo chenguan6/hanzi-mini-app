@@ -1,32 +1,41 @@
-# 汉字寻踪
+# Hanzi Mini App
 
-一个零依赖的汉字拆笔画小游戏原型，可直接作为 Telegram Mini App 的前端页面使用。
+A static Telegram Mini App prototype for a Chinese character stroke puzzle.
 
-## 本地运行
+## Features
+
+- 5 playable levels.
+- Tap stroke combinations to discover hidden characters.
+- Score, timer, hint count, and completion result sheet.
+- Local progress restore with `localStorage`.
+- Telegram WebApp SDK integration and MainButton support.
+
+## Local Run
 
 ```powershell
-python -m http.server 5173 --bind 127.0.0.1
+python -m http.server 5188 --bind 127.0.0.1
 ```
 
-然后打开：
+Open:
 
 ```text
-http://127.0.0.1:5173/
+http://127.0.0.1:5188/
 ```
 
-## 怎么接 Telegram Bot
+## Cloudflare Upload
 
-1. 把本项目部署到支持 HTTPS 的静态站点。
-2. 在 BotFather 里给 bot 设置 Web App / Menu Button。
-3. URL 填部署后的 HTTPS 地址。
-4. 用户从 Telegram 打开后，页面会自动调用 `Telegram.WebApp.ready()` 和 `expand()`。
+Upload the generated archive:
 
-## 关卡配置
+```text
+hanzi-mini-app-dist.zip
+```
 
-关卡数据在 `src/levels.js`：
+Then configure the Telegram bot menu button with the HTTPS URL from Cloudflare.
 
-- `strokes`：每一笔的 SVG 路径。
-- `answers`：答案字和需要选中的笔画 ID。
-- `title` / `prompt`：关卡文案。
+## Level Data
 
-后续可以把 `levels.js` 换成接口返回，排行榜、用户分数、复活道具等再接后端。
+Level data lives in `src/levels.js`.
+
+- `strokes`: clickable SVG paths.
+- `answers`: character answers and required stroke IDs.
+- `title` and `prompt`: level copy.
