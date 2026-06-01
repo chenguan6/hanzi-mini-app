@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>&#27721;&#23383;&#35299;&#35868;&#25152;</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="game-top">
+        <div>
+          <span class="level-pill" id="levelLabel">&#20851;&#21345; 1</span>
+          <h1 id="levelTitle">&#25214;&#20986;5&#20010;&#24120;&#29992;&#23383;</h1>
+        </div>
+        <div class="progress-ring" id="progressText">0/5</div>
+      </header>
+
+      <section class="answer-board" id="answerSlots" aria-label="&#24050;&#25214;&#21040;&#30340;&#27721;&#23383;"></section>
+
+      <section class="prompt-panel">
+        <p id="levelPrompt">&#28857;&#20987;&#31508;&#30011;&#32452;&#21512;&#20986;&#34255;&#22312;&#37324;&#38754;&#30340;&#23383;</p>
+      </section>
+
+      <section class="stage" aria-label="&#27721;&#23383;&#31508;&#30011;&#36873;&#25321;&#21306;">
+        <svg id="characterSvg" viewBox="0 0 320 320" role="img" aria-labelledby="charTitle">
+          <title id="charTitle">&#21487;&#28857;&#20987;&#30340;&#27721;&#23383;&#31508;&#30011;</title>
+        </svg>
+      </section>
+
+      <section class="found-list" id="foundList" aria-label="&#31572;&#26696;&#21015;&#34920;"></section>
+
+      <nav class="actions" aria-label="&#28216;&#25103;&#25805;&#20316;">
+        <button class="action-button" type="button" id="resetBtn">
+          <span class="action-icon">R</span>
+          <span>&#37325;&#36873;</span>
+        </button>
+        <button class="action-button" type="button" id="hintBtn">
+          <span class="action-icon">?</span>
+          <span>&#25552;&#31034;</span>
+        </button>
+        <button class="action-button primary" type="button" id="submitBtn">
+          <span class="action-icon">OK</span>
+          <span>&#36807;&#20851;</span>
+        </button>
+      </nav>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="./src/levels.js"></script>
+    <script src="./src/app.js"></script>
+  </body>
+</html>
