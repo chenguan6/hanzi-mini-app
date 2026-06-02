@@ -88,5 +88,97 @@ window.HANZI_LEVELS = [
       { char: "\u7530", strokes: ["roof", "leftWall", "rightWall", "floor", "centerV", "centerH"] },
       { char: "\u65e5", strokes: ["roof", "leftWall", "rightWall", "floor", "centerH"] }
     ]
+  },
+  {
+    title: "\u5c0f\u5b57\u7ec4\u5408\u6311\u6218",
+    prompt: "\u4ece\u4e0a\u4e0b\u7ed3\u6784\u91cc\u627e\u51fa\u719f\u6089\u7684\u5c0f\u5b57",
+    strokes: [
+      { id: "dot", d: "M162 62 C160 66, 160 70, 163 74", width: 18 },
+      { id: "left", d: "M132 118 C121 154, 102 198, 78 252", width: 20 },
+      { id: "right", d: "M192 118 C211 156, 232 203, 256 252", width: 20 },
+      { id: "cross", d: "M100 154 C138 145, 196 145, 238 155", width: 18 },
+      { id: "vert", d: "M164 112 C160 152, 160 211, 166 260", width: 18 }
+    ],
+    answers: [
+      { char: "\u4e36", strokes: ["dot"] },
+      { char: "\u4eba", strokes: ["left", "right"] },
+      { char: "\u5927", strokes: ["left", "right", "cross"] },
+      { char: "\u6728", strokes: ["left", "right", "cross", "vert"] },
+      { char: "\u672f", strokes: ["dot", "left", "right", "cross", "vert"] }
+    ]
+  },
+  {
+    title: "\u4e2d\u7ebf\u7684\u79d8\u5bc6",
+    prompt: "\u8fd9\u4e00\u5173\u91cd\u70b9\u770b\u6a2a\u7ad6\u5982\u4f55\u5207\u5206\u7a7a\u95f4",
+    strokes: [
+      { id: "boxTop", d: "M82 88 C130 76, 214 77, 262 90", width: 20 },
+      { id: "boxLeft", d: "M86 91 C82 142, 82 209, 88 262", width: 20 },
+      { id: "boxRight", d: "M260 92 C255 143, 255 210, 260 263", width: 20 },
+      { id: "boxBottom", d: "M88 262 C132 252, 214 252, 260 263", width: 20 },
+      { id: "midV", d: "M170 86 C166 137, 166 211, 171 262", width: 18 },
+      { id: "midH", d: "M87 177 C133 169, 214 169, 258 177", width: 18 }
+    ],
+    answers: [
+      { char: "\u4e00", strokes: ["boxTop"] },
+      { char: "\u53e3", strokes: ["boxTop", "boxLeft", "boxRight", "boxBottom"] },
+      { char: "\u65e5", strokes: ["boxTop", "boxLeft", "boxRight", "boxBottom", "midH"] },
+      { char: "\u7530", strokes: ["boxTop", "boxLeft", "boxRight", "boxBottom", "midH", "midV"] },
+      { char: "\u5341", strokes: ["midH", "midV"] }
+    ]
+  },
+  {
+    title: "\u5de5\u5b57\u53d8\u5f62",
+    prompt: "\u6709\u4e9b\u7b54\u6848\u53ea\u9700\u8981\u770b\u4e2d\u95f4\u7684\u51e0\u7b14",
+    strokes: [
+      { id: "topH", d: "M82 86 C131 76, 209 76, 258 88", width: 22 },
+      { id: "midV", d: "M168 88 C164 135, 164 194, 170 244", width: 20 },
+      { id: "bottomH", d: "M70 246 C122 235, 218 235, 272 247", width: 24 },
+      { id: "smallH", d: "M117 166 C151 158, 205 158, 238 167", width: 18 },
+      { id: "dot", d: "M214 112 C218 118, 220 124, 220 130", width: 16 }
+    ],
+    answers: [
+      { char: "\u4e00", strokes: ["topH"] },
+      { char: "\u4e8c", strokes: ["topH", "bottomH"] },
+      { char: "\u5de5", strokes: ["topH", "midV", "bottomH"] },
+      { char: "\u738b", strokes: ["topH", "smallH", "midV", "bottomH"] },
+      { char: "\u4e3b", strokes: ["dot", "topH", "smallH", "midV", "bottomH"] }
+    ]
+  },
+  {
+    title: "\u5c71\u5f62\u7b14\u753b",
+    prompt: "\u7ad6\u753b\u7684\u957f\u77ed\u5dee\u5f02\u4f1a\u85cf\u51fa\u4e0d\u540c\u5b57",
+    strokes: [
+      { id: "leftV", d: "M93 128 C89 168, 89 220, 94 262", width: 20 },
+      { id: "midV", d: "M164 72 C159 128, 159 204, 165 262", width: 22 },
+      { id: "rightV", d: "M236 128 C232 168, 232 220, 237 262", width: 20 },
+      { id: "bottom", d: "M94 262 C136 252, 196 252, 238 263", width: 22 },
+      { id: "topH", d: "M121 130 C153 122, 197 122, 228 132", width: 18 }
+    ],
+    answers: [
+      { char: "\u4e28", strokes: ["midV"] },
+      { char: "\u4e0a", strokes: ["midV", "bottom"] },
+      { char: "\u5c71", strokes: ["leftV", "midV", "rightV", "bottom"] },
+      { char: "\u51fa", strokes: ["leftV", "midV", "rightV", "bottom", "topH"] },
+      { char: "\u4e00", strokes: ["bottom"] }
+    ]
+  },
+  {
+    title: "\u7ec8\u5c40\u6311\u6218",
+    prompt: "\u7528\u6700\u5c11\u63d0\u793a\u901a\u5173\uff0c\u5206\u6570\u4f1a\u66f4\u9ad8",
+    strokes: [
+      { id: "top", d: "M88 82 C134 72, 210 72, 256 84", width: 21 },
+      { id: "left", d: "M112 84 C102 128, 92 184, 74 244", width: 20 },
+      { id: "right", d: "M244 86 C234 130, 224 186, 208 244", width: 20 },
+      { id: "insideH", d: "M106 164 C144 156, 205 156, 240 165", width: 18 },
+      { id: "bottom", d: "M73 246 C124 234, 206 234, 258 247", width: 22 },
+      { id: "centerV", d: "M164 86 C160 132, 159 205, 165 246", width: 18 }
+    ],
+    answers: [
+      { char: "\u4e00", strokes: ["top"] },
+      { char: "\u4e8c", strokes: ["top", "bottom"] },
+      { char: "\u5341", strokes: ["insideH", "centerV"] },
+      { char: "\u65e5", strokes: ["top", "left", "right", "bottom", "insideH"] },
+      { char: "\u7530", strokes: ["top", "left", "right", "bottom", "insideH", "centerV"] }
+    ]
   }
 ];

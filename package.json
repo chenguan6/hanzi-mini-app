@@ -1,12 +1,19 @@
 {
-  "name": "mini_app",
-  "version": "1.0.0",
-  "description": "一个零依赖的汉字拆笔画小游戏原型，可直接作为 Telegram Mini App 的前端页面使用。",
-  "main": "index.js",
+  "name": "hanzi-mini-app",
+  "version": "1.1.0",
+  "description": "Hanzi Telegram Mini App with optional Stars backend.",
+  "main": "server/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:api": "node server/app.js",
+    "check": "node --check src/app.js && node --check src/levels.js && node --check server/app.js",
+    "test": "npm run check"
   },
-  "keywords": [],
+  "keywords": [
+    "telegram",
+    "mini-app",
+    "stars",
+    "hanzi"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",

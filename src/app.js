@@ -1,6 +1,7 @@
 (function () {
   const levels = window.HANZI_LEVELS || [];
   const storageKey = "hanzi-mini-app-state-v2";
+  const apiBase = window.HANZI_API_BASE || localStorage.getItem("HANZI_API_BASE") || "";
   const state = {
     levelIndex: 0,
     selected: new Set(),
@@ -10,7 +11,11 @@
     hintsUsed: 0,
     startedAt: Date.now(),
     elapsedBefore: 0,
-    finished: false
+    finished: false,
+    apiToken: "",
+    account: null,
+    packs: {},
+    leaderboard: []
   };
 
   const text = {
@@ -24,11 +29,14 @@
     missingPrefix: "\u8fd8\u5dee",
     missingSuffix: "\u4e2a\u5b57",
     next: "\u8fdb\u5165\u4e0b\u4e00\u5173",
-    done: "\u5168\u90e8\u901a\u5173\uff01",
     resumed: "\u5df2\u6062\u590d\u4e0a\u6b21\u8fdb\u5ea6",
     copied: "\u6210\u7ee9\u5df2\u53d1\u9001\u5230 Telegram",
     scoreUnit: "\u5206",
-    empty: "\u6682\u65e0\u5173\u5361"
+    empty: "\u6682\u65e0\u5173\u5361",
+    apiOffline: "\u672a\u8fde\u63a5\u540e\u7aef",
+    invoiceReady: "\u652f\u4ed8\u94fe\u63a5\u5df2\u6253\u5f00",
+    loginOk: "\u5df2\u8fde\u63a5 Telegram \u8d26\u6237",
+    scoreSaved: "\u6210\u7ee9\u5df2\u4e0a\u699c"
   };
 
   const $ = (id) => document.getElementById(id);
@@ -44,6 +52,12 @@
   const finalScoreText = $("finalScoreText");
   const finalTimeText = $("finalTimeText");
   const resultSummary = $("resultSummary");
+  const playerName = $("playerName");
+  const serverHintText = $("serverHintText");
+  const shopSheet = $("shopSheet");
+  const packList = $("packList");
+  const leaderboardSheet = $("leaderboardSheet");
+  const leaderboardList = $("leaderboardList");
   let toastTimer = null;
   let timerId = null;
   let tg = null;
@@ -68,6 +82,94 @@
     document.body.classList.toggle("tg-dark", tg.colorScheme === "dark");
     if (tg.setHeaderColor) tg.setHeaderColor(tg.colorScheme === "dark" ? "#17212b" : "#eef4ef");
     if (tg.setBackgroundColor) tg.setBackgroundColor(tg.colorScheme === "dark" ? "#17212b" : "#eef4ef");
+  }
+
+  async function api(path, options = {}) {
+    if (!apiBase) throw new Error(text.apiOffline);
+    const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+    if (state.apiToken) headers.Authorization = `Bearer ${state.apiToken}`;
+    const response = await fetch(`${apiBase}${path}`, { ...options, headers });
+    const data = await response.json();
+    if (!response.ok || data.ok === false) throw new Error(data.error || "API error");
+    return data;
+  }
+
+  async function initAccount() {
+    if (!apiBase) {
+      renderAccount();
+      return;
+    }
+    try {
+      const data = await api("/api/auth/telegram", {
+        method: "POST",
+        body: JSON.stringify({ initData: tg ? tg.initData : "", name: "Browser Player" })
+      });
+      state.apiToken = data.token;
+      state.account = data.user;
+      state.packs = data.packs || {};
+      renderAccount();
+      renderPacks();
+      await loadLeaderboard();
+      showToast(text.loginOk);
+    } catch (error) {
+      renderAccount();
+      showToast(error.message);
+    }
+  }
+
+  function renderAccount() {
+    if (!state.account) {
+      playerName.textContent = text.apiOffline;
+      serverHintText.textContent = "\u63d0\u793a --";
+      return;
+    }
+    playerName.textContent = state.account.username ? `@${state.account.username}` : state.account.firstName || "Player";
+    serverHintText.textContent = `\u63d0\u793a ${state.account.hints || 0}`;
+  }
+
+  function renderPacks() {
+    packList.innerHTML = "";
+    const packs = Object.values(state.packs);
+    if (!packs.length) {
+      const empty = document.createElement("p");
+      empty.textContent = text.apiOffline;
+      packList.appendChild(empty);
+      return;
+    }
+    packs.forEach((pack) => {
+      const button = document.createElement("button");
+      button.className = "pack-button";
+      button.type = "button";
+      button.innerHTML = `<strong>${pack.title}</strong><span>${pack.stars} Stars · +${pack.hints} hints</span>`;
+      button.addEventListener("click", () => buyPack(pack.id));
+      packList.appendChild(button);
+    });
+  }
+
+  async function loadLeaderboard() {
+    try {
+      const data = await api("/api/leaderboard");
+      state.leaderboard = data.leaderboard || [];
+    } catch (error) {
+      state.leaderboard = [];
+    }
+    renderLeaderboard();
+  }
+
+  function renderLeaderboard() {
+    leaderboardList.innerHTML = "";
+    if (!state.leaderboard.length) {
+      const empty = document.createElement("p");
+      empty.textContent = "\u6682\u65e0\u6210\u7ee9";
+      leaderboardList.appendChild(empty);
+      return;
+    }
+    state.leaderboard.slice(0, 20).forEach((entry, index) => {
+      const row = document.createElement("div");
+      row.className = "leaderboard-row";
+      row.innerHTML = `<span>${index + 1}. ${entry.name}</span><strong>${entry.score}</strong>`;
+      leaderboardList.appendChild(row);
+    });
   }
 
   function keyOf(ids) {
@@ -159,9 +261,8 @@
   }
 
   function renderSlots() {
-    const level = currentLevel();
     slots.innerHTML = "";
-    level.answers.forEach((answer) => {
+    currentLevel().answers.forEach((answer) => {
       const slot = document.createElement("div");
       slot.className = "slot";
       slot.textContent = state.found.has(answer.char) ? answer.char : "";
@@ -170,9 +271,8 @@
   }
 
   function renderFoundList() {
-    const level = currentLevel();
     foundList.innerHTML = "";
-    level.answers.forEach((answer) => {
+    currentLevel().answers.forEach((answer) => {
       const badge = document.createElement("span");
       badge.className = state.found.has(answer.char) ? "found-badge visible" : "found-badge";
       badge.textContent = answer.char;
@@ -198,7 +298,7 @@
   }
 
   function updateTelegramButton() {
-    if (!tg) return;
+    if (!tg || !tg.MainButton) return;
     if (state.finished) {
       tg.MainButton.setText("\u5206\u4eab\u6210\u7ee9");
       return;
@@ -209,19 +309,15 @@
 
   function toggleStroke(id) {
     if (state.finished) return;
-    if (state.selected.has(id)) {
-      state.selected.delete(id);
-    } else {
-      state.selected.add(id);
-    }
+    if (state.selected.has(id)) state.selected.delete(id);
+    else state.selected.add(id);
     renderStrokes();
     checkSelection();
   }
 
   function checkSelection() {
-    const level = currentLevel();
     const selectedKey = keyOf(Array.from(state.selected));
-    const match = level.answers.find((answer) => keyOf(answer.strokes) === selectedKey);
+    const match = currentLevel().answers.find((answer) => keyOf(answer.strokes) === selectedKey);
     if (!match) return;
 
     if (state.found.has(match.char)) {
@@ -229,8 +325,8 @@
       return;
     }
 
-    state.found.add(match.char);
     const gainedScore = Math.max(20, 120 - state.hintsUsed * 8);
+    state.found.add(match.char);
     state.score += gainedScore;
     state.selected.clear();
     renderSlots();
@@ -254,13 +350,31 @@
 
   function showHint() {
     if (state.finished) return;
-    const level = currentLevel();
-    const next = level.answers.find((answer) => !state.found.has(answer.char));
+    const next = currentLevel().answers.find((answer) => !state.found.has(answer.char));
     if (!next) {
       showToast(text.allFound);
       return;
     }
+    useServerHintIfAvailable().then((allowed) => {
+      if (allowed) applyHint(next);
+    });
+  }
 
+  async function useServerHintIfAvailable() {
+    if (!state.account) return true;
+    try {
+      const data = await api("/api/hints/use", { method: "POST", body: "{}" });
+      state.account = data.user;
+      renderAccount();
+      return true;
+    } catch (error) {
+      showToast(error.message);
+      showShop();
+      return false;
+    }
+  }
+
+  function applyHint(next) {
     state.hintsUsed += 1;
     state.score = Math.max(0, state.score - 10);
     state.selected = new Set(next.strokes.slice(0, Math.max(1, next.strokes.length - 1)));
@@ -305,7 +419,23 @@
     renderStats();
     updateTelegramButton();
     saveProgress();
+    submitScore();
     showResult();
+  }
+
+  async function submitScore() {
+    if (!state.account) return;
+    try {
+      const data = await api("/api/score", {
+        method: "POST",
+        body: JSON.stringify({ score: state.score, elapsed: elapsedSeconds(), levels: levels.length })
+      });
+      state.leaderboard = data.leaderboard || [];
+      renderLeaderboard();
+      showToast(text.scoreSaved);
+    } catch (error) {
+      // Local completion should still work if the backend is offline.
+    }
   }
 
   function showResult() {
@@ -339,18 +469,65 @@
   }
 
   function shareResult() {
-    if (!tg) {
-      showResult();
-      return;
-    }
-    tg.sendData(JSON.stringify({
+    const payload = {
       type: "game_result",
       score: state.score,
       elapsed: elapsedSeconds(),
       hintsUsed: state.hintsUsed,
       levels: levels.length
-    }));
+    };
+    if (tg) tg.sendData(JSON.stringify(payload));
+    else navigator.clipboard && navigator.clipboard.writeText(`Hanzi score: ${state.score}`);
     showToast(text.copied);
+  }
+
+  function showShop() {
+    renderPacks();
+    shopSheet.classList.add("visible");
+    shopSheet.setAttribute("aria-hidden", "false");
+  }
+
+  function hideShop() {
+    shopSheet.classList.remove("visible");
+    shopSheet.setAttribute("aria-hidden", "true");
+  }
+
+  async function buyPack(packId) {
+    try {
+      const data = await api("/api/stars/invoice", {
+        method: "POST",
+        body: JSON.stringify({ packId })
+      });
+      if (tg && tg.openInvoice) tg.openInvoice(data.invoiceLink, refreshAccount);
+      else window.open(data.invoiceLink, "_blank", "noopener");
+      showToast(text.invoiceReady);
+    } catch (error) {
+      showToast(error.message);
+    }
+  }
+
+  async function refreshAccount() {
+    if (!state.apiToken) return;
+    try {
+      const data = await api("/api/account");
+      state.account = data.user;
+      state.packs = data.packs || state.packs;
+      renderAccount();
+      renderPacks();
+    } catch (error) {
+      renderAccount();
+    }
+  }
+
+  function showLeaderboard() {
+    loadLeaderboard();
+    leaderboardSheet.classList.add("visible");
+    leaderboardSheet.setAttribute("aria-hidden", "false");
+  }
+
+  function hideLeaderboard() {
+    leaderboardSheet.classList.remove("visible");
+    leaderboardSheet.setAttribute("aria-hidden", "true");
   }
 
   function startTimer() {
@@ -363,8 +540,14 @@
   $("submitBtn").addEventListener("click", submitLevel);
   $("replayBtn").addEventListener("click", restartGame);
   $("continueBtn").addEventListener("click", hideResult);
+  $("buyHintsBtn").addEventListener("click", showShop);
+  $("closeShopBtn").addEventListener("click", hideShop);
+  $("leaderboardBtn").addEventListener("click", showLeaderboard);
+  $("closeLeaderboardBtn").addEventListener("click", hideLeaderboard);
+  $("shareBtn").addEventListener("click", shareResult);
 
   initTelegram();
+  initAccount();
   const restored = loadProgress();
   renderLevel({ keepFound: restored });
   if (state.finished) showResult();

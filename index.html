@@ -32,6 +32,16 @@
         </div>
       </section>
 
+      <section class="account-panel" aria-label="&#29609;&#23478;&#36134;&#25143;">
+        <div>
+          <span id="playerName">&#26410;&#30331;&#24405;</span>
+          <strong id="serverHintText">&#26381;&#21153;&#22120;&#25552;&#31034; --</strong>
+        </div>
+        <button class="mini-button" type="button" id="buyHintsBtn">&#20080;&#25552;&#31034;</button>
+        <button class="mini-button" type="button" id="leaderboardBtn">&#25490;&#34892;</button>
+        <button class="mini-button" type="button" id="shareBtn">&#20998;&#20139;</button>
+      </section>
+
       <section class="answer-board" id="answerSlots" aria-label="&#24050;&#25214;&#21040;&#30340;&#27721;&#23383;"></section>
 
       <section class="prompt-panel">
@@ -84,8 +94,32 @@
       </div>
     </section>
 
+    <section class="shop-sheet" id="shopSheet" aria-hidden="true">
+      <div class="result-card" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
+        <span class="result-kicker">Stars</span>
+        <h2 id="shopTitle">&#36141;&#20080;&#25552;&#31034;</h2>
+        <p>&#29992; Telegram Stars &#34917;&#20805;&#25552;&#31034;&#27425;&#25968;&#65292;&#25903;&#20184;&#25104;&#21151;&#21518;&#30001;&#21518;&#31471;&#35760;&#36134;&#12290;</p>
+        <div class="pack-list" id="packList"></div>
+        <div class="result-actions">
+          <button type="button" class="action-button" id="closeShopBtn">&#20851;&#38381;</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="shop-sheet" id="leaderboardSheet" aria-hidden="true">
+      <div class="result-card" role="dialog" aria-modal="true" aria-labelledby="leaderboardTitle">
+        <span class="result-kicker">&#25490;&#34892;&#27036;</span>
+        <h2 id="leaderboardTitle">&#39640;&#20998;&#29609;&#23478;</h2>
+        <div class="leaderboard-list" id="leaderboardList"></div>
+        <div class="result-actions">
+          <button type="button" class="action-button" id="closeLeaderboardBtn">&#20851;&#38381;</button>
+        </div>
+      </div>
+    </section>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+    <script src="./src/config.js"></script>
     <script src="./src/levels.js"></script>
     <script src="./src/app.js"></script>
   </body>

@@ -149,6 +149,46 @@ h1 {
   line-height: 1.1;
 }
 
+.account-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid rgba(83, 99, 86, 0.16);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 8px 18px rgba(42, 48, 43, 0.07);
+}
+
+.account-panel span,
+.account-panel strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-panel span {
+  font-weight: 900;
+}
+
+.account-panel strong {
+  margin-top: 2px;
+  color: var(--soft);
+  font-size: 12px;
+}
+
+.mini-button {
+  min-height: 38px;
+  border: 1px solid rgba(83, 99, 86, 0.16);
+  border-radius: 12px;
+  padding: 0 10px;
+  background: rgba(47, 111, 221, 0.1);
+  color: var(--ink);
+  font-weight: 900;
+}
+
 .answer-board {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -327,7 +367,8 @@ body.tg-dark .action-button.primary {
   transform: translate(-50%, 0);
 }
 
-.result-sheet {
+.result-sheet,
+.shop-sheet {
   position: fixed;
   inset: 0;
   z-index: 20;
@@ -340,7 +381,8 @@ body.tg-dark .action-button.primary {
   transition: opacity 180ms ease;
 }
 
-.result-sheet.visible {
+.result-sheet.visible,
+.shop-sheet.visible {
   opacity: 1;
   pointer-events: auto;
 }
@@ -410,6 +452,50 @@ body.tg-dark .action-button.primary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+}
+
+.pack-list,
+.leaderboard-list {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.pack-button,
+.leaderboard-row {
+  width: 100%;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(83, 99, 86, 0.16);
+  border-radius: 16px;
+  background: var(--surface-strong);
+  color: var(--ink);
+}
+
+.pack-button {
+  cursor: pointer;
+  text-align: left;
+}
+
+.pack-button strong,
+.pack-button span {
+  display: block;
+}
+
+.pack-button span {
+  color: var(--soft);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.leaderboard-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @media (min-width: 760px) {
