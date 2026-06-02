@@ -169,7 +169,7 @@ async function handle(req, res) {
 }
 
 if (require.main === module) {
-  http.createServer(handle).listen(port, () => {
+  http.createServer(handle).listen(port, "0.0.0.0", () => {
     console.log(`Hanzi Mini App API listening on http://127.0.0.1:${port}`);
   });
 }

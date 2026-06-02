@@ -35,6 +35,7 @@ Set these on the backend host:
 TELEGRAM_BOT_TOKEN=your_bot_token
 SESSION_SECRET=a_long_random_secret
 PUBLIC_BASE_URL=https://main.hidden-frost-3cf1.pages.dev
+STORE_FILE=/var/data/store.json
 ```
 
 Webhook endpoint:

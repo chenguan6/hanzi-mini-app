@@ -1,8 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const dataDir = path.join(__dirname, "data");
-const dataFile = path.join(dataDir, "store.json");
+const dataFile = process.env.STORE_FILE || path.join(__dirname, "data", "store.json");
+const dataDir = path.dirname(dataFile);
 
 function defaultStore() {
   return {
